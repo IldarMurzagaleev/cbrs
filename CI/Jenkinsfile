@@ -43,13 +43,13 @@ options {
                 script {
                     try {
                        bat encoding: 'UTF-8', script: '''chcp 65001
-                                                         cd cbrs && docker build -t kadgar/cbrs:latest
+                                                         cd cbrs && docker build -t cbrs:latest
                                                       '''
                         }
 
                     finally {
                         bat encoding: 'UTF-8', script: '''chcp 65001
-                                                          cd cbrs && docker run kadgar/cbrs:latest
+                                                          cd cbrs && docker run cbrs:latest
                                                         '''
                         }
 				    }
@@ -59,7 +59,7 @@ options {
                 stage('Push'){
             steps{
                 bat encoding: 'UTF-8', script: '''chcp 65001
-                                                  for /f %%i in ('docker image ls -qf "reference=kadgar/cbrs*"') do set imageId=%%i
+                                                  for /f %%i in ('docker image ls -qf "reference=cbrs*"') do set imageId=%%i
                                                   docker tag %imageId% kadgar/cbrs:latest
                                                   docker push kadgar/cbrs:latest'''
             }
