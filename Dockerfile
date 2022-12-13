@@ -15,4 +15,5 @@ RUN pip --no-cache-dir install pyspark==${PYSPARK_VERSION}
 RUN pip install -r requirements.txt
 
 
-CMD ["python", "main.py"]
+CMD ["main.py"]
+ENTRYPOINT ["python"]
