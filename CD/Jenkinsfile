@@ -27,7 +27,7 @@ options {
         stage('Pull image'){
             steps{
                  bat encoding: 'UTF-8', script: '''chcp 65001
-                                                   docker pull kadgar/mle:latest
+                                                   docker pull kadgar/cbrs:latest
                                                 '''
             }
         }
@@ -35,7 +35,7 @@ options {
         stage('Run container'){
             steps{
                  bat encoding: 'UTF-8', script: '''chcp 65001
-                                                   docker run --name mle -p 80:5556 -d kadgar/mle:latest
+                                                   docker run --name cbrs -p 80:5556 -d kadgar/cbrs:latest
                                                 '''
             }
         }
@@ -44,7 +44,7 @@ options {
     post {
         always {
             bat encoding: 'UTF-8', script: '''chcp 65001
-                                               docker stop mle && docker logout'''
+                                               docker stop cbrs && docker logout'''
         }
     }
 }

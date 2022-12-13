@@ -1,0 +1,3 @@
+Row(target_id=27544, recommended_id=27544, sim_rank=1.0)
+Row(target_id=27544, recommended_id=53290, sim_rank=0.0705089196562767)
+Row(target_id=27544, recommended_id=29347, sim_rank=0.017121784389019012)
