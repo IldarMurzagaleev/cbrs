@@ -1,0 +1,77 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDS=credentials('mle')
+        LC_ALL = "en_US.UTF-8"
+        LANG    = "en_US.UTF-8"
+        LANGUAGE = "en_US.UTF-8"
+    }
+
+options {
+        timestamps()
+        skipDefaultCheckout(true)
+	}
+    stages {
+        stage('Clone github repository') {
+            steps {
+                cleanWs()
+                bat encoding: 'CP1251', script: '''chcp 1251
+                                                   git clone -b main https://github.com/IldarMurzagaleev/recsys.git'''
+				}
+			}
+
+        stage('Checkout repo dir') {
+            steps {
+                bat encoding: 'CP1251', script: '''chcp 1251
+                                                   cd mle && dir'''
+				}
+			}
+
+        stage('Login'){
+            steps{
+                //withCredentials([usernamePassword(credentialsId: 'mle', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]){
+                //bat 'chcp 65001 && echo %DOCKER_REGISTRY_PWD% | docker login -u %DOCKER_REGISTRY_USER% --password-stdin'}
+                //bat 'chcp 65001 && echo %DOCKERHUB_CREDS_PSW% | docker login -u %DOCKERHUB_CREDS_USR% --password-stdin'
+                bat encoding: 'CP1251', script: '''chcp 1251
+                                                   docker login -u %DOCKERHUB_CREDS_USR% -p %DOCKERHUB_CREDS_PSW%'''
+                }
+            }
+
+        stage('Create and run docker container') {
+            steps {
+                script {
+                    try {
+                       bat encoding: 'UTF-8', script: '''chcp 65001
+                                                         cd mle
+                                                         docker build -t kadgar/cbrs:latest
+                                                      '''
+                        }
+
+                    finally {
+                        bat encoding: 'UTF-8', script: '''chcp 65001
+                                                          cd mle
+                                                          docker run kadgar/cbrs:latest
+                                                        '''
+                        }
+				    }
+                }
+            }
+
+                stage('Push'){
+            steps{
+                bat encoding: 'UTF-8', script: '''chcp 65001
+                                                  for /f %%i in ('docker image ls -qf "reference=kadgar/cbrs*"') do set imageId=%%i
+                                                  docker tag %imageId% kadgar/cbrs:latest
+                                                  docker push kadgar/cbrs:latest'''
+            }
+        }
+	}
+
+    post {
+        always {
+            bat encoding: 'UTF-8', script: '''chcp 65001
+                                              docker logout'''
+        }
+    }
+}

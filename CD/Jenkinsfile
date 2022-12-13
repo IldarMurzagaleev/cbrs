@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDS=credentials('mle')
+        LC_ALL = "en_US.UTF-8"
+        LANG    = "en_US.UTF-8"
+        LANGUAGE = "en_US.UTF-8"
+    }
+
+options {
+        timestamps()
+        skipDefaultCheckout(true)
+	}
+    stages {
+
+        stage('Login'){
+            steps{
+                //withCredentials([usernamePassword(credentialsId: 'mle', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]){
+                //bat 'chcp 65001 && echo %DOCKER_REGISTRY_PWD% | docker login -u %DOCKER_REGISTRY_USER% --password-stdin'}
+                //bat 'chcp 65001 && echo %DOCKERHUB_CREDS_PSW% | docker login -u %DOCKERHUB_CREDS_USR% --password-stdin'
+                bat encoding: 'CP1251', script: '''chcp 1251
+                                                   docker login -u %DOCKERHUB_CREDS_USR% -p %DOCKERHUB_CREDS_PSW%'''
+                }
+            }
+
+        stage('Pull image'){
+            steps{
+                 bat encoding: 'UTF-8', script: '''chcp 65001
+                                                   docker pull kadgar/mle:latest
+                                                '''
+            }
+        }
+
+        stage('Run container'){
+            steps{
+                 bat encoding: 'UTF-8', script: '''chcp 65001
+                                                   docker run --name mle -p 80:5556 -d kadgar/mle:latest
+                                                '''
+            }
+        }
+	}
+
+    post {
+        always {
+            bat encoding: 'UTF-8', script: '''chcp 65001
+                                               docker stop mle && docker logout'''
+        }
+    }
+}

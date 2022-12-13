@@ -1,0 +1,38 @@
+name: Build Docker Image CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        openjdk-version: [8]
+        python-version: [3.9.8]
+        pyspark-version: [3.2.0]
+        image-variant: ['slim-buster', 'buster']
+    
+    steps:
+      -
+         name: Checkout
+         uses: actions/checkout@v2
+      -
+        name: Build the Docker image
+        run: |
+          docker build . --file Dockerfile \
+            --build-arg OPENJDK_VERSION=${{ matrix.openjdk-version }} \
+            --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
+            --build-arg PYSPARK_VERSION=${{ matrix.pyspark-version }} \
+            --build-arg IMAGE_VARIANT=${{ matrix.image-variant }} \
+            --tag ykursadkaya/pyspark:${{ matrix.pyspark-version }}-${{ matrix.image-variant }}
+      -
+        name: Test PySpark Script
+        if: success()
+        run: |
+          docker run --entrypoint="" -v $(pwd):/repo ykursadkaya/pyspark:${{ matrix.pyspark-version }}-${{ matrix.image-variant }} python /repo/test.py
