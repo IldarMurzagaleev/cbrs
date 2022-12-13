@@ -54,8 +54,9 @@ film_profile = rescaledData.select("item_id", col("features").alias("film_profil
 # film_profile.rdd.saveAsTextFile("test")
 
 k = 5
-request = ["27544", "128790", "206578", "116292", "125530", "40818", "114816", "32512", "118884", "187844"]
-request = request[:7]
+request = ["27544", "128790", "206578", "116292", "125530"]
+#"114816", "32512", "40818",  "118884", "187844"
+# request = request[:7]
 user_rec = cbrs(request, film_profile , k)
 user_rec.show(truncate=False)
 user_rec.rdd.saveAsTextFile("out")
