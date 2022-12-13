@@ -44,7 +44,7 @@ options {
     post {
         always {
             bat encoding: 'UTF-8', script: '''chcp 65001
-                                               docker stop mle && docker logout'''
+                                               docker stop cbrs && docker logout'''
         }
     }
 }
