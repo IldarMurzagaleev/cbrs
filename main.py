@@ -60,5 +60,5 @@ k = 5
 request = [27544, 128790, 206578, 116292, 125530, 210830, 27197, 133191, 130153, 121395]
 user_rec = cbrs(request, film_profile , k)
 user_rec.show(truncate=False)
-user_rec.rdd.saveAsTextFile("out")
+user_rec.rdd.saveAsTextFile("out_cnt")
 
