@@ -24,9 +24,11 @@ def cbrs(items, all, k):
         dot_prod_udf = f.udf(lambda v: float(v.dot(vm) / (v.norm(2) * vm.norm(2))), FloatType())
         sim_df = all.withColumn('Similarity', dot_prod_udf('film_profile'))
         # Partition by item_id and order by the similarity in descending order
-        window = Window.partitionBy(col("item_id")).orderBy((col("Similarity")).desc())
-        # Add row numbers to the rows and get the top-k rows
-        sim_df = sim_df.select(col('*'), row_number().over(window).alias('row_number')).where(col('Similarity') > 0.0)
+        # window = Window.partitionBy(col("item_id")).orderBy((col("Similarity")).desc())
+        # # Add row numbers to the rows and get the top-k rows
+        # sim_df = sim_df.select(col('*'), row_number().over(window).alias('row_number')).where(col('Similarity') > 0.0)
+        sim_df = sim_df.orderBy((col("Similarity")).desc())
+        sim_df = sim_df.where(col('Similarity') > 0.0)
         # Renaming
         sim_df = sim_df.withColumn("target_id", lit(target))
         cbrs_df = sim_df.select("target_id", col("item_id").alias("recommended_id"),  col("Similarity").alias("sim_rank")).limit(k)
@@ -54,9 +56,8 @@ film_profile = rescaledData.select("item_id", col("features").alias("film_profil
 # film_profile.rdd.saveAsTextFile("test")
 
 k = 5
-request = ["27544", "128790", "206578", "116292", "125530", "210830"]
-#"114816", "32512", "40818",  "118884", "187844", "31734",
-# request = request[:7]
+# request = ["27544", "128790", "206578", "116292", "125530", "210830", "27197", "133191", "130153", "121395"]
+request = [27544, 128790, 206578, 116292, 125530, 210830, 27197, 133191, 130153, 121395]
 user_rec = cbrs(request, film_profile , k)
 user_rec.show(truncate=False)
 user_rec.rdd.saveAsTextFile("out")
